@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Microservices Frontend</title>
+</head>
+<body>
+  <h1>Login</h1>
+  <input id="username" placeholder="Username" />
+  <input id="password" placeholder="Password" type="password" />
+  <button onclick="login()">Login</button>
+
+  <h1>Todos</h1>
+  <input id="task" placeholder="New task" />
+  <button onclick="addTodo()">Add</button>
+  <ul id="todo-list"></ul>
+
+  <script>
+    async function login() {
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value
+        })
+      });
+
+      const data = await res.json();
+      console.log('Login response:', data);
+    }
+
+    async function addTodo() {
+      const task = document.getElementById('task').value;
+      await fetch('/todo/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task })
+      });
+      loadTodos();
+    }
+
+    async function loadTodos() {
+      const res = await fetch('/todo/todos');
+      const todos = await res.json();
+      const list = document.getElementById('todo-list');
+      list.innerHTML = '';
+      todos.forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = t.task;
+        list.appendChild(li);
+      });
+    }
+
+    loadTodos();
+  </script>
+</body>
+</html>
